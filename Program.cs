@@ -19,19 +19,20 @@ namespace GitImporter
     {
         public static TraceSource Logger = new TraceSource("GitImporter", SourceLevels.All);
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
+            int retVal = 0;
             Console.Error.WriteLine("GitImporter called with {0} arguments :", args.Length);
             foreach (string arg in args)
                 Console.Error.WriteLine("    " + arg);
             Logger.TraceData(TraceEventType.Information, 0, string.Format("GitImporter called with {0} arguments : {1}", args.Length, string.Join(" ", args)));
             var importerArguments = new ImporterArguments();
             if (!CommandLine.Parser.ParseArgumentsWithUsage(args, importerArguments))
-                return;
+                return 1;
             if (!importerArguments.CheckArguments())
             {
                 Console.Error.WriteLine(CommandLine.Parser.ArgumentsUsage(typeof(ImporterArguments)));
-                return;
+                return 1;
             }
 
             try
@@ -53,7 +54,7 @@ namespace GitImporter
                         gitWriter.WriteFile(importerArguments.FetchFileContent);
                     }
                     Logger.TraceData(TraceEventType.Stop | TraceEventType.Information, 0, "Stop program");
-                    return;
+                    return 0;
                 }
                 if (importerArguments.LoadVobDB != null && importerArguments.LoadVobDB.Length > 0)
                 {
@@ -148,12 +149,14 @@ namespace GitImporter
             {
                 Logger.TraceData(TraceEventType.Critical, 0, "Exception during import : " + ex);
                 Console.Error.WriteLine("Exception during import : " + ex);
+                retVal = 1;
             }
             finally
             {
                 Logger.TraceData(TraceEventType.Stop | TraceEventType.Information, 0, "Stop program");
                 Logger.Flush();
             }
+            return retVal;
         }
     }
 }
