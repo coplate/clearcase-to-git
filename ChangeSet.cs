@@ -88,6 +88,14 @@ namespace GitImporter
             }
         }
 
+        public int FileCount
+        {
+            get
+            {
+                return Versions.Where(v => !v.Version.Element.IsDirectory).Where(v => !v.Version.VersionPath.Equals("\\main\\0")).Count();
+            }
+        }
+
         public ChangeSet(string authorName, string authorLogin, string branch, DateTime time)
         {
             AuthorName = authorName;
