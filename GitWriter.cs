@@ -106,7 +106,17 @@ namespace GitImporter
         {
             if (changeSet.IsEmpty)
             {
-                Logger.TraceData(TraceEventType.Information, (int)TraceId.ApplyChangeSet, "Skipped empty ChangeSet " + changeSet);
+                if (changeSet.FileCount > 0)
+                {
+                    Logger.TraceData(TraceEventType.Information, (int)TraceId.ApplyChangeSet, "Skipped empty ChangeSet " + changeSet);
+                    foreach (var initialFile in changeSet.Versions)
+                    {
+                        if (!initialFile.Version.Element.IsDirectory)
+                        {
+                            Logger.TraceData(TraceEventType.Information, (int)TraceId.ApplyChangeSet, "Version:" + initialFile);
+                        }
+                    }
+                }
                 return;
             }
 
