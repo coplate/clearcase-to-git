@@ -30,3 +30,9 @@ for some directories. Then for each new version of this file, if a match is foun
 and a label, the corresponding commit of the submodule will be referenced.
 
 As far as thirdparties are concerned, I went to a [NuGet](https://github.com/nuget/home)-based solution instead, but old commits still refer the submodules.
+
+## Credits
+Forked from https://github.com/lanfeust69
+
+##Changes from lanfeust69 version
+Made minor changes to bring in some strange files present, relating to files visible om \main\0
