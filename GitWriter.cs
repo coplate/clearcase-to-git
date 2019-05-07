@@ -47,16 +47,18 @@ namespace GitImporter
         private readonly HashSet<string> _startedBranches = new HashSet<string>();
         private readonly Dictionary<string, string> _branchRename;
 
+        List<string> _prefixes = new List<String>();
         public List<Tuple<string, string>> InitialFiles { get; private set; }
 
         public List<PreWritingHook> PreWritingHooks { get; private set; }
         public List<PostWritingHook> PostWritingHooks { get; private set; }
 
-        public GitWriter(string clearcaseRoot, bool doNotIncludeFileContent, IEnumerable<string> labels,
+        public GitWriter(string clearcaseRoot, IEnumerable<string> prefixes, bool doNotIncludeFileContent, IEnumerable<string> labels,
             Dictionary<string, string> branchRename = null)
         {
             _doNotIncludeFileContent = doNotIncludeFileContent;
             _branchRename = branchRename ?? new Dictionary<string, string>();
+            _prefixes.AddRange(prefixes);
             InitialFiles = new List<Tuple<string, string>>();
             PreWritingHooks = new List<PreWritingHook>();
             PostWritingHooks = new List<PostWritingHook>();
@@ -64,6 +66,7 @@ namespace GitImporter
             if (_doNotIncludeFileContent)
                 return;
             _cleartool = new Cleartool(clearcaseRoot, new LabelFilter(labels));
+            
         }
 
         public void WriteChangeSets(IList<ChangeSet> changeSets)
@@ -268,8 +271,21 @@ namespace GitImporter
             _writer.Write("\n");
         }
 
-        private static string RemoveDotRoot(string path)
+        private string RemoveDotRoot(string path)
         {
+            foreach (var prefix in _prefixes)
+            {
+                string prossible_prefix = prefix;
+                if (!prefix.EndsWith("/"))
+                {
+                    prossible_prefix = prefix + "/";
+                }
+                if (path.StartsWith(prefix))
+                {
+                    return path.Substring(prefix.Length);
+                }
+            }
+            
             return path.StartsWith("./") ? path.Substring(2) : path;
         }
 
