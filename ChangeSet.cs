@@ -175,36 +175,107 @@ namespace GitImporter
                 .OrderByDescending(g => g.Count())
                 .ToDictionary(g => g.Key, g => g.Select(v => v.Name).ToList());
 
-            string title;
+            var allActivities = interestingFileChanges.Where(v => !string.IsNullOrWhiteSpace(v.Version.Activity))
+                .Select(v => new { Name = v.Names[0], v.Version.Activity })
+                .GroupBy(e => (e.Activity ?? "").Trim().Replace("\r", ""))
+                .OrderByDescending(g => g.Count())
+                .ToDictionary(g => g.Key, g => g.Select(v => v.Name).ToList());
+
+            // I want it to look like this:
+            //activity:Defect_--_Migration@\af_pvob  "Defect -- Migration" (1 file modification) : af01_shell\DATABASE\Packages\FW_USER_P.bdy
+            // changes for handling challenge phrase change
+            // activity:Defect_--_Migration@\af_pvob  "Defect -- Migration"
+
+            // changes for handling challenge phrase change - activity:Defect_--_Migration@\af_pvob (1 file modification) : af01_shell\DATABASE\Packages\FW_USER_P.bdy, af01_shell\DATABASE\Packages\FW_USER_P.spc
+            //
+            // OR
+            // 
+            // activity:Defect_--_Migration@\af_pvob (1 file modification) : 
+            // af01_shell\DATABASE\Packages\FW_USER_P.bdy, 
+            //      changes for handling challenge phrase change - 
+            // af01_shell\DATABASE\Packages\FW_USER_P.spc
+            //       blah blah blah
+
+            string message="";// first line
+            string activityMessage = null;
+            string commentMessage = null;
+            
+            string treeMessage;
+            string filesMessage = DisplayFileNames(interestingFileChanges.Select(v => v.Names[0]).ToList(), false);
+            string description = null;
+
             if (nbTreeChanges > 0)
-                title = string.Format("{0} file modification{1} and {2} tree modification{3}",
+                treeMessage = string.Format("{0} file modification{1} and {2} tree modification{3}",
                     nbFileChanges, (nbFileChanges > 1 ? "s" : ""), nbTreeChanges, nbTreeChanges > 1 ? "s" : "");
             else
-                title = string.Format("{0} file modification{1}", nbFileChanges, (nbFileChanges > 1 ? "s" : ""));
+                treeMessage = string.Format("{0} file modification{1}", nbFileChanges, (nbFileChanges > 1 ? "s" : ""));
 
-            if (allComments.Count == 0)
-                return title + " : " + DisplayFileNames(interestingFileChanges.Select(v => v.Names[0]).ToList(), false);
+            if ( ( allComments.Count + allActivities.Count ) == 0)
+                return treeMessage + " : " + filesMessage;
 
-            var mostFrequentComment = allComments.First();
-            // no multi-line comment as title
-            bool useMostFrequentCommentAsTitle = mostFrequentComment.Value.Count >= nbFileChanges / 2 + 1 && !mostFrequentComment.Key.Contains("\n");
-            if (useMostFrequentCommentAsTitle)
-                title = mostFrequentComment.Key + " (" + title + ")";
-
-            if (useMostFrequentCommentAsTitle && allComments.Count == 1)
-                return title + " : " + DisplayFileNames(interestingFileChanges.Select(v => v.Names[0]).ToList(), false);
-
-            var sb = new StringBuilder(title);
-            sb.Append("\n");
-            foreach (var comment in allComments)
+            if (allActivities.Count > 0 )
             {
-                sb.Append("\n");
-                sb.Append(DisplayFileNames(comment.Value, true));
-                sb.Append(" :\n\t");
-                sb.Append(comment.Key.Replace("\n", "\n\t"));
+                var mostFrequentActivity = allActivities.First();
+                // no multi-line Activity as title
+                bool useMostFrequentActivityAsTitle = mostFrequentActivity.Value.Count >= nbFileChanges / 2 + 1 && !mostFrequentActivity.Key.Contains("\n");
+                if (useMostFrequentActivityAsTitle)
+                    activityMessage = mostFrequentActivity.Key;
+
             }
 
-            return sb.ToString();
+            if (allComments.Count > 0 )
+            {
+                var mostFrequentComment = allComments.First();
+                // no multi-line comment as title
+                bool useMostFrequentCommentAsTitle = mostFrequentComment.Value.Count >= nbFileChanges / 2 + 1 && !mostFrequentComment.Key.Contains("\n");
+                if (useMostFrequentCommentAsTitle)
+                    commentMessage = mostFrequentComment.Key;
+
+            }
+            
+            // treeMessage and fileMessage will be set, activityMessage, and commentMessage might be set. 
+            //we know enough now to generat our top line.
+            
+            if( activityMessage != null && commentMessage != null  ){
+                message = commentMessage + " { " + activityMessage + " } " + " ( " + treeMessage + " ) : " + filesMessage;
+            }else if( activityMessage != null   ){
+                message = activityMessage + " ( " + treeMessage + " ) : " + filesMessage;
+            }else if( commentMessage != null  ){
+                message = commentMessage + " ( " + treeMessage + " ) : " + filesMessage;
+            }else{
+                message = treeMessage + " : " + filesMessage;
+            }
+
+            var sb = new StringBuilder();
+            if (allActivities.Count > 1)
+            {
+
+                sb.Append("\n");
+                foreach (var Activity in allActivities)
+                {
+                    sb.Append("\n");
+                    sb.Append(DisplayFileNames(Activity.Value, true));
+                    sb.Append(" :\n\t");
+                    sb.Append(Activity.Key.Replace("\n", "\n\t"));
+                }
+            }   
+            if (allComments.Count > 1)
+            {
+                sb.Append("\n");
+                foreach (var comment in allComments)
+                {
+                    sb.Append("\n");
+                    sb.Append(DisplayFileNames(comment.Value, true));
+                    sb.Append(" :\n\t");
+                    sb.Append(comment.Key.Replace("\n", "\n\t"));
+                }
+                
+            }
+            description = sb.ToString();
+            if( sb.Length > 0 ){
+                return message + description;
+            }
+            return message;
         }
 
         private static string DisplayFileNames(IList<string> fileNames, bool showNbNonDisplayed)
