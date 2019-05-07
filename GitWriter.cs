@@ -280,9 +280,9 @@ namespace GitImporter
                 {
                     prossible_prefix = prefix + "/";
                 }
-                if (path.StartsWith(prefix))
+                if (path.StartsWith(prossible_prefix))
                 {
-                    return path.Substring(prefix.Length);
+                    return path.Substring(prossible_prefix.Length);
                 }
             }
             
