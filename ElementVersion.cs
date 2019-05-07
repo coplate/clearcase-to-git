@@ -42,11 +42,13 @@ namespace GitImporter
         public DateTime Date { get; set; }
         [ProtoMember(5, AsReference = true)]
         public string Comment { get; set; }
+        [ProtoMember(6, AsReference = true)]
+        public string Activity { get; set; }
 
         public List<ElementVersion> MergesFrom { get; private set; }
         public List<ElementVersion> MergesTo { get; private set; }
 
-        [ProtoMember(6, AsReference = true)]
+        [ProtoMember(7, AsReference = true)]
         public List<string> Labels { get; private set; }
 
         public string VersionPath { get { return "\\" + Branch.FullName + "\\" + VersionNumber; } } 
@@ -87,8 +89,8 @@ namespace GitImporter
             return Element.Name + "@@" + VersionPath;
         }
 
-        [ProtoMember(7)] private List<Reference> _rawMergesFrom;
-        [ProtoMember(8)] private List<Reference> _rawMergesTo;
+        [ProtoMember(8)] private List<Reference> _rawMergesFrom;
+        [ProtoMember(9)] private List<Reference> _rawMergesTo;
 
         [ProtoBeforeSerialization]
         private void BeforeProtobufSerialization()
