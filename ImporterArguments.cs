@@ -19,6 +19,8 @@ namespace GitImporter
         public string VersionsFile;
         [Argument(ArgumentType.MultipleUnique, HelpText = "Roots : directory elements whose parents are not imported.", DefaultValue = new[] { "." })]
         public string[] Roots;
+        [Argument(ArgumentType.MultipleUnique, HelpText = "Prefixes : Prefix(es) to remove from paths when building output files", DefaultValue = new[] { "." })]
+        public string[] Prefixes;
         [Argument(ArgumentType.MultipleUnique, HelpText = "Branches to import (may be a regular expression).", DefaultValue = new[] { "^PROD\\d+\\.\\d+" })]
         public string[] Branches;
         [Argument(ArgumentType.MultipleUnique, HelpText = "Labels to import (may be a regular expression, or NONE).", DefaultValue = new[] { ".*" })]

@@ -385,15 +385,16 @@ namespace GitImporter
                 // assumed to be (empty) version 0
                 if (element.IsSolo)
                 {
-                    //but if there is exactly one on /main/0, deal with it
                     currentVersion = element.GetVersion("main", 0);
                 }
 
                 if (currentVersion == null)
                 {
-                    return addedVersions;
+                    //but if there is exactly one on /main/0, deal with it
+                    return;
                 }
             }
+
             if (element.IsDirectory)
             {
                 foreach (var subElement in ((DirectoryVersion)currentVersion).Content)
