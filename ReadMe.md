@@ -34,5 +34,5 @@ As far as thirdparties are concerned, I went to a [NuGet](https://github.com/nug
 ## Credits
 Forked from https://github.com/lanfeust69
 
-##Changes from lanfeust69 version
+## Changes from lanfeust69 version
 Made minor changes to bring in some strange files present, relating to files visible om \main\0
