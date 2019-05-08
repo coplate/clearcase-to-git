@@ -3,6 +3,7 @@ set batch_location=%~dp0
 set source_location=%batch_location%\..\
 
 if not exist %batch_location%\GitImporter.exe (
+ copy %source_location%\cleartool_tty.exe %source_location%\scripts\cleartool_tty.exe
  copy %source_location%\App.config %source_location%\scripts\GitImporter.exe.config
  copy %source_location%\protobuf-net.* %source_location%\scripts\
  C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe  /debug /define:DEBUG /define:TRACE /r:protobuf-net.dll /out:%batch_location%\GitImporter.exe /pdb:%batch_location%\GitImporter %source_location%\*.cs 
