@@ -25,10 +25,12 @@ my @file_patterns = (
   qr/[\\]cgi-logs[\\]/
 );
 my $patterns = \@dir_patterns;
+my $seen_dot = 0;
 if( $type eq 'F' ){
   $patterns = \@file_patterns;
+  $seen_dot = 1;# do not add '.@@' to the files file, only dirs file
 }
-my $seen_dot = 0;
+
 print STDERR "Removing ^$vob\\$project\r\n";
 open(my $fh, '<', $list_of_files) || die "cannot open $_";
 while(my $path = <$fh>){
