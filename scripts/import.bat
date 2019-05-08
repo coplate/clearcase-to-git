@@ -56,7 +56,7 @@ if [%search_type%] == [project] goto find_files_to_import
 goto usage
  
 :find_files_to_import
-if exist %export_dir%\%clearcase_pvob%.project_files goto filter_files
+if exist %export_dir%\%clearcase_pvob%.%search_type%_files goto filter_files
 echo Creating Project file list, this may take a very long time
 pushd %pvob_root%
 echo %cd%
