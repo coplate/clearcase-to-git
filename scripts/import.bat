@@ -127,7 +127,7 @@ goto :eof
  
 :usage
 @echo Usage: %0 ^<Drive:\view^> ^<vob^> ^<project^> ^<Drive:\git_parent_folder^> ^<file_search_type ^( vob ^| project ^)^> ^<use_export_flag ^( true ^| false^)^>
-@echo    ex: %0 k:\mdcarls_shell_1.1_int af_pvob %clearcase_project% c:\ccgit vob
+@echo    ex: %0 k:\view_name vob_name project_folder_name c:\ccgit project false
 @echo  Note: When use_export_flag=true, the process will run faster, but will not process activity names
 @echo  Note: If file_search_type=project gives you errors further down the line, you many need to do a full vob file listing in order to process files and history correctly.
 exit /B 1
