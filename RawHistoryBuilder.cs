@@ -120,8 +120,12 @@ namespace GitImporter
             // end of label move
             if (versionForLabel != version)
                 version.Labels.Clear();
-            if (version.VersionNumber == 0 && (version.Element.IsDirectory || version.Branch.BranchName != "main"))
-                return;
+            if (version.VersionNumber == 0 && version.Element.IsDirectory)
+                if( ! ( version.Branch.BranchName == "main" && branchChangeSets.Count == 0 ) ) # force the first /main/0 entry on the history, so force create the master branch
+                    return;// Skip all 0 version directories, unless we are on /main/0, and branchChangeSet is empty
+            if (version.VersionNumber == 0 && version.Branch.BranchName != "main")
+                return;// skip all 0 version files that are not on main.
+
             List<ChangeSet> authorChangeSets;
             if (!branchChangeSets.TryGetValue(version.AuthorLogin, out authorChangeSets))
             {
