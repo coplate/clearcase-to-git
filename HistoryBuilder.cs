@@ -176,7 +176,7 @@ namespace GitImporter
                                     // create an empty ChangeSet to start
                                     
                                     var missingBranch = new ChangeSet("Git Importer",
-                                        "gitimporter", toStart, new DateTime(0));
+                                        "gitimporter", toStart, changeSet.StartTime.AddSeconds(-1));
                                     _elementsNamesByBranch.Add(toStart, new Dictionary<Element, HashSet<string>>());
                                     _elementsVersionsByBranch.Add(toStart, new Dictionary<Element, ElementVersion>());
                                     _startedBranches.Add(toStart, missingBranch);
