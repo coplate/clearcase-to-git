@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -120,18 +120,8 @@ namespace GitImporter
             // end of label move
             if (versionForLabel != version)
                 version.Labels.Clear();
-            bool skip_root_version = false;
-
             if (version.VersionNumber == 0 && (version.Element.IsDirectory || version.Branch.BranchName != "main"))
-                skip_root_version = true;
-
-            if (version.VersionNumber == 0 && version.Branch.BranchName == "main" && version.Element.Name == ".")
-                skip_root_version = false; // TODO:  add PREFIXES or Roots to this as well, Use this to force an early main branch to exists
-
-            if (skip_root_version)
                 return;
-
-
             List<ChangeSet> authorChangeSets;
             if (!branchChangeSets.TryGetValue(version.AuthorLogin, out authorChangeSets))
             {
