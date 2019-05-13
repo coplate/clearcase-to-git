@@ -135,8 +135,31 @@ namespace GitImporter
                 _writer.Write("from refs/heads/" + branchName + "^0\n");
                 _startedBranches.Add(branchName);
             }
+            var changeSetElementNames = changeSet.Versions.Select(v => v.Version.Element.Name);
+            var missingNamedVersions = new List<ChangeSet.NamedVersion>();
             foreach (var merge in changeSet.Merges)
-                _writer.Write("merge :" + merge.Id + "\n");
+            {
+                 _writer.Write("merge :" + merge.Id + "\n");
+ 
+                var mergeNamedVersions = merge.Versions;
+                var mergeFileElements = mergeNamedVersions.Select(v => v.Version.Element).Where(e => !e.IsDirectory);
+                var mergeFileNames = mergeFileElements.Select( e => e.Name);
+                var mergeDirVersions = merge.Versions.Select(v => v.Version).Where( v => v.Element.IsDirectory);
+                //var changesetElements = changeSet.Versions;
+                //var missingElements = 
+                foreach (DirectoryVersion mergedDirVersion in mergeDirVersions)
+                {
+                    var mergedDirMergeElementNames = mergedDirVersion.Content.Where(c => mergeFileNames.Contains(c.Value.Name)).Select(l => l.Value.Name); // contains the subelements of Dir that were in mergeSet
+                    var missingElementNames = mergedDirMergeElementNames.Where(n => !changeSetElementNames.Contains(n));
+                    if (missingElementNames.Count() > 0)
+                    {
+                        missingNamedVersions.AddRange(mergeNamedVersions.Where(nv => missingElementNames.Contains(nv.Version.Element.Name)).ToList());
+                        _writer.Write("#merged version :" + string.Join(",", missingElementNames.ToList()) + " was not included in destination: " + changeSet + "\n");
+                    }
+
+                }
+                    
+            }
 
             if (!_initialFilesAdded && branchName == "master")
             {
@@ -193,6 +216,32 @@ namespace GitImporter
 
                 InlineClearcaseFileVersion(namedVersion.Version.Element.Name, namedVersion.Version.Element.Oid, namedVersion.Version.VersionPath, namedVersion.Names.Select(RemoveDotRoot), true);
             }
+
+            foreach (var namedVersion in missingNamedVersions)
+            {
+                if (namedVersion.Version is DirectoryVersion || namedVersion.Names.Count == 0)
+                    continue;
+
+                bool isEmptyFile = namedVersion.Version.VersionNumber == 0 && namedVersion.Version.Branch.BranchName == "main";
+
+                if (_doNotIncludeFileContent || isEmptyFile)
+                {
+                    foreach (string name in namedVersion.Names.Select(RemoveDotRoot))
+                        if (isEmptyFile)
+                            _writer.Write("M 644 inline " + name + "\ndata 0\n\n");
+                        else
+                        {
+                            // don't use InlineString here, so that /FetchFileContent is easy to implement
+                            _writer.Write("M 644 inline " + name + "\ndata <<EOF\n" + namedVersion.Version + "#" + namedVersion.Version.Element.Oid + "\nEOF\n\n");
+                            // also include name in a comment for hooks in /FetchFileContent
+                            _writer.Write("#" + name + "\n");
+                        }
+                    continue;
+                }
+
+                InlineClearcaseFileVersion(namedVersion.Version.Element.Name, namedVersion.Version.Element.Oid, namedVersion.Version.VersionPath, namedVersion.Names.Select(RemoveDotRoot), true);
+            }
+
 
             foreach (var label in changeSet.Labels)
             {
