@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -164,23 +164,46 @@ namespace GitImporter
                             {
                                 toStart = currentParent;
                                 currentParent = _globalBranches[currentParent];
+                                if (currentParent == null)
+                                    break;
                             }
                             if (toStart != null)
                             {
-                                // create an empty ChangeSet to start
-                                var missingBranchStartingPoint = _branchTips[currentParent];
-                                missingBranchStartingPoint.IsBranchingPoint = true;
-                                var missingBranch = new ChangeSet(missingBranchStartingPoint.AuthorName,
-                                    missingBranchStartingPoint.AuthorLogin, toStart, missingBranchStartingPoint.FinishTime);
-                                missingBranch.BranchingPoint = missingBranchStartingPoint;
-                                _elementsNamesByBranch.Add(toStart, _elementsNamesByBranch[currentParent].ToDictionary(elementNames => elementNames.Key, elementNames => new HashSet<string>(elementNames.Value)));
-                                _elementsVersionsByBranch.Add(toStart, new Dictionary<Element, ElementVersion>(_elementsVersionsByBranch[currentParent]));
-                                _startedBranches.Add(toStart, missingBranchStartingPoint);
-                                _branchTips[toStart] = missingBranchStartingPoint;
-                                missingBranch.Id = changeSet.Id;
-                                _lastId++;
-                                changeSet.Id = _lastId;
-                                orderedChangeSets.Insert(orderedChangeSets.Count - 1, missingBranch);
+                                // ex: toStart = main
+                                if (currentParent == null)
+                                {
+                                    // somehow, changes were done on a child branch, before they were done on main
+                                    // create an empty ChangeSet to start
+                                    
+                                    var missingBranch = new ChangeSet("Git Importer",
+                                        "gitimporter", toStart, new DateTime(0));
+                                    _elementsNamesByBranch.Add(toStart, new Dictionary<Element, HashSet<string>>());
+                                    _elementsVersionsByBranch.Add(toStart, new Dictionary<Element, ElementVersion>());
+                                    _startedBranches.Add(toStart, missingBranch);
+                                    _branchTips[toStart] = missingBranch;
+                                    missingBranch.Id = changeSet.Id;
+                                    _lastId++;
+                                    changeSet.Id = _lastId;
+                                    orderedChangeSets.Insert(orderedChangeSets.Count - 1, missingBranch);
+                                }
+                                else
+                                {
+                                    // create an empty ChangeSet to start
+                                    var missingBranchStartingPoint = _branchTips[currentParent];
+                                    missingBranchStartingPoint.IsBranchingPoint = true;
+                                    var missingBranch = new ChangeSet(missingBranchStartingPoint.AuthorName,
+                                        missingBranchStartingPoint.AuthorLogin, toStart, missingBranchStartingPoint.FinishTime);
+                                    missingBranch.BranchingPoint = missingBranchStartingPoint;
+                                    _elementsNamesByBranch.Add(toStart, _elementsNamesByBranch[currentParent].ToDictionary(elementNames => elementNames.Key, elementNames => new HashSet<string>(elementNames.Value)));
+                                    _elementsVersionsByBranch.Add(toStart, new Dictionary<Element, ElementVersion>(_elementsVersionsByBranch[currentParent]));
+                                    _startedBranches.Add(toStart, missingBranchStartingPoint);
+                                    _branchTips[toStart] = missingBranchStartingPoint;
+                                    missingBranch.Id = changeSet.Id;
+                                    _lastId++;
+                                    changeSet.Id = _lastId;
+                                    orderedChangeSets.Insert(orderedChangeSets.Count - 1, missingBranch);
+                                }
+                                
                             }
                         } while (toStart != null);
 
