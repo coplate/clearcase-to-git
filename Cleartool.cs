@@ -191,7 +191,12 @@ namespace GitImporter
         {
             bool isDir = version.Element.IsDirectory;
             // not interested in directory merges
-            string format = "%Fu" + _separator + "%u" + _separator + "%Nd" + _separator + "%Nc" + _separator + "%Nl" +
+            string format = "%Fu" + _separator + 
+                "%u" + _separator + 
+                "%Nd" + _separator + 
+                "%Nc" + _separator +
+                "%[activity]CXp" + _separator +
+                "%Nl" +
                 (isDir ? "" : _separator + "%[hlink:Merge]p");
             // string.Join to handle multi-line comments
             string raw = string.Join("\r\n", ExecuteCommand("desc -fmt \"" + format + "\" \"" + version + "\""));
@@ -200,17 +205,18 @@ namespace GitImporter
             version.AuthorLogin = string.Intern(parts[1]);
             version.Date = DateTime.ParseExact(parts[2], "yyyyMMdd.HHmmss", null).ToUniversalTime();
             version.Comment = string.Intern(parts[3]);
-            foreach (string label in parts[4].Split(' '))
+            version.Activity = string.Intern(parts[4]);
+            foreach (string label in parts[5].Split(' '))
                 if (!string.IsNullOrWhiteSpace(label) && _labelFilter.ShouldKeep(label))
                     version.Labels.Add(string.Intern(label));
             mergesTo = mergesFrom = null;
-            if (isDir || string.IsNullOrEmpty(parts[5]))
+            if (isDir || string.IsNullOrEmpty(parts[6]))
                 return;
 
-            Match match = _mergeRegex.Match(parts[5]);
+            Match match = _mergeRegex.Match(parts[6]);
             if (!match.Success)
             {
-                Logger.TraceData(TraceEventType.Warning, (int)TraceId.Cleartool, "Failed to parse merge data '" + parts[5] + "'");
+                Logger.TraceData(TraceEventType.Warning, (int)TraceId.Cleartool, "Failed to parse merge data '" + parts[6] + "'");
                 return;
             }
             mergesTo = new List<Tuple<string, int>>();
