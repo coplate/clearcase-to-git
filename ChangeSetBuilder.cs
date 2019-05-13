@@ -381,9 +381,19 @@ namespace GitImporter
             }
             ElementVersion currentVersion;
             if (!_elementsVersions.TryGetValue(element, out currentVersion))
+            {
                 // assumed to be (empty) version 0
-                return;
+                if (element.IsSolo)
+                {
+                    //but if there is exactly one on /main/0, deal with it
+                    currentVersion = element.GetVersion("main", 0);
+                }
 
+                if (currentVersion == null)
+                {
+                    return addedVersions;
+                }
+            }
             if (element.IsDirectory)
             {
                 foreach (var subElement in ((DirectoryVersion)currentVersion).Content)
