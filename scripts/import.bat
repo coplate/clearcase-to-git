@@ -29,7 +29,7 @@ set search_type=%5
 set use_export=%6
  
 set search_flag=-all
-if [%search_type%] == [vob] set search_flag=
+if [%search_type%] == [project] set search_flag=
 set pvob_root=%clearcase_view_root%\%clearcase_pvob%
  
 set export_dir=%git_workspace%\clearcase-to-git-export
