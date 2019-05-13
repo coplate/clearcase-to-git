@@ -181,20 +181,6 @@ namespace GitImporter
                 .OrderByDescending(g => g.Count())
                 .ToDictionary(g => g.Key, g => g.Select(v => v.Name).ToList());
 
-            // I want it to look like this:
-            //activity:Defect_--_Migration@\af_pvob  "Defect -- Migration" (1 file modification) : af01_shell\DATABASE\Packages\FW_USER_P.bdy
-            // changes for handling challenge phrase change
-            // activity:Defect_--_Migration@\af_pvob  "Defect -- Migration"
-
-            // changes for handling challenge phrase change - activity:Defect_--_Migration@\af_pvob (1 file modification) : af01_shell\DATABASE\Packages\FW_USER_P.bdy, af01_shell\DATABASE\Packages\FW_USER_P.spc
-            //
-            // OR
-            // 
-            // activity:Defect_--_Migration@\af_pvob (1 file modification) : 
-            // af01_shell\DATABASE\Packages\FW_USER_P.bdy, 
-            //      changes for handling challenge phrase change - 
-            // af01_shell\DATABASE\Packages\FW_USER_P.spc
-            //       blah blah blah
 
             string message="";// first line
             string activityMessage = null;
