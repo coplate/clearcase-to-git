@@ -3,7 +3,7 @@ set batch_location=%~dp0
 set source_location=%batch_location%\..\
 
 if not exist %batch_location%\GitImporter.exe (
- pushd %batch_location%
+  pushd %batch_location%
  copy %source_location%\cleartool_tty.exe %source_location%\scripts\cleartool_tty.exe
  copy %source_location%\App.config %source_location%\scripts\GitImporter.exe.config
  copy %source_location%\protobuf-net.* %source_location%\scripts\
@@ -33,7 +33,6 @@ if [%search_type%] == [vob] set search_flag=
 set pvob_root=%clearcase_view_root%\%clearcase_pvob%
  
 set export_dir=%git_workspace%\clearcase-to-git-export
-set rel_export_dir=clearcase-to-git-export
 mkdir %git_workspace%\clearcase-to-git-export
  
  
@@ -42,7 +41,7 @@ goto check_search_type
  
 :export
 set export_flag=%export_dir%\%clearcase_project%.export
-if exist %rel_export_dir%\%clearcase_project%.export goto find_files_to_import
+if exist %export_dir%\%clearcase_project%.export goto find_files_to_import
 echo Creating Project export file, this may take a very long time
 pushd %clearcase_pvob%
 echo %cd%
@@ -57,7 +56,7 @@ if [%search_type%] == [project] goto find_files_to_import
 goto usage
  
 :find_files_to_import
-if exist %export_dir%\%clearcase_pvob%.%search_type%_files
+if exist %export_dir%\%clearcase_pvob%.project_files goto filter_files
 echo Creating Project file list, this may take a very long time
 pushd %pvob_root%
 echo %cd%
@@ -70,7 +69,7 @@ echo %cd%
  
  
 :filter_files
-if exist %rel_export_dir%\%clearcase_project%.import_files goto build_vodb
+if exist %export_dir%\%clearcase_project%.import_files goto build_vodb
 echo filterin files...
  
 ccperl %batch_location%\filter.pl D %pvob_root% %clearcase_project% %export_dir%\%clearcase_pvob%.%search_type%_dirs>%export_dir%\%clearcase_project%.import_dirs
@@ -79,14 +78,14 @@ ccperl %batch_location%\filter.pl F %pvob_root% %clearcase_project% %export_dir%
  
 :build_vodb
  
-if exist %rel_export_dir%\%clearcase_project%.vodb goto create_partial_import
+if exist %export_dir%\%clearcase_project%.vodb goto create_partial_import
  
 if exist %export_dir%\build_%clearcase_project%_vodb.log move %export_dir%\build_%clearcase_project%_vodb.log %export_dir%\build_%clearcase_project%_vodb.%DATE:~-4%-%DATE:~4,2%-%DATE:~7,2%.log
 if exist %export_dir%\%clearcase_project%.vodb move %export_dir%\%clearcase_project%.vodb %export_dir%\%clearcase_project%.%DATE:~-4%-%DATE:~4,2%-%DATE:~7,2%.vodb
  
-%batch_location%\GitImporter.exe /S:%rel_export_dir%\%clearcase_project%.vodb /C:%pvob_root% /Branches:^^.*  /D:%rel_export_dir%\%clearcase_project%.import_dirs /E:%rel_export_dir%\%clearcase_project%.import_files /R:. /R:%clearcase_project% /P:./%clearcase_project% /P:%clearcase_project% %export_flag% /G >%export_dir%\build_%clearcase_project%_vodb.output
+%batch_location%\GitImporter.exe /S:%export_dir%\%clearcase_project%.vodb /C:%pvob_root% /Branches:^^.*  /D:%export_dir%\%clearcase_project%.import_dirs /E:%export_dir%\%clearcase_project%.import_files /R:. /R:%clearcase_project% /P:./%clearcase_project% /P:%clearcase_project% %export_flag% /G >%export_dir%\build_%clearcase_project%_vodb.output
 if %errorlevel% neq 0 goto err
-if not exist %rel_export_dir%\%clearcase_project%.vodb (
+if not exist %export_dir%\%clearcase_project%.vodb (
     rem file doesn't exist
     goto err
 )
@@ -95,10 +94,10 @@ move %batch_location%\GitImporter.log %export_dir%\build_%clearcase_project%_vod
 :create_partial_import
  
 if exist %export_dir%\%clearcase_project%_history.bin move %export_dir%\%clearcase_project%_history.bin  %export_dir%\%clearcase_project%_history.%DATE:~-4%-%DATE:~4,2%-%DATE:~7,2%.bin
-%batch_location%\GitImporter.exe /L:%rel_export_dir%\%clearcase_project%.vodb /C:%pvob_root% /Branches:^^.* /H:%export_dir%\%clearcase_project%_history.bin /R:. /R:%clearcase_project% /P:./%clearcase_project% /P:%clearcase_project% /N >%export_dir%\%clearcase_project%_import.partial 2>%export_dir%\%clearcase_project%_import.partial.err
+%batch_location%\GitImporter.exe /L:%export_dir%\%clearcase_project%.vodb /C:%pvob_root% /Branches:^^.* /H:%export_dir%\%clearcase_project%_history.bin /R:. /R:%clearcase_project% /P:./%clearcase_project% /P:%clearcase_project% /N >%export_dir%\%clearcase_project%_import.partial 2>%export_dir%\%clearcase_project%_import.partial.err
 if %errorlevel% neq 0 goto err
-if not exist %rel_export_dir%\%clearcase_project%_history.bin (
-    rem file %rel_export_dir%\%clearcase_project%_history.bin doesn't exist
+if not exist %export_dir%\%clearcase_project%_history.bin (
+    rem file %export_dir%\%clearcase_project%_history.bin doesn't exist
     goto err
 )
 move %batch_location%\GitImporter.log %export_dir%\create_%clearcase_project%_import_partial.log
