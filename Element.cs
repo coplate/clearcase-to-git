@@ -39,6 +39,33 @@ namespace GitImporter
             return branch.Versions.FirstOrDefault(v => v.VersionNumber == versionNumber);
         }
 
+        public bool IsSolo
+        {
+            get
+            {
+                if (Branches.Count == 1)
+                {
+                    // assumed to be (empty) version 0
+                    if (Branches.First().Value.FullName.Equals("main"))
+                    {
+                        if (Branches.First().Value.Versions.Count == 1)
+                        {
+                            if (Branches.First().Value.Versions.First().VersionNumber == 0)
+                            {
+                                return true;
+                            }
+                        }
+                        
+                    }
+
+
+                } 
+                return false;
+
+                
+            }
+        }
+
         public override string ToString()
         {
             return Name;
