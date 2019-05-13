@@ -111,20 +111,22 @@ move %batch_location%\GitImporter.log %export_dir%\create_%clearcase_project%_im
  
  
 :create_repo
-mkdir git
-rmdir /S /Q git\%clearcase_project%.git
-git init --bare git\%clearcase_project%.git
-git -C git\%clearcase_project%.git config core.ignorecase false
-git -C git\%clearcase_project%.git config core.autocrlf false
+set git_storage_dir=%git_workspace%\clearcase-to-git-export\git
+set bare_repo_dir=%git_storage_dir%\%clearcase_project%.git
+mkdir %git_storage_dir%
+rmdir /S /Q %bare_repo_dir%
+git init --bare %bare_repo_dir%
+git -C %bare_repo_dir% config core.ignorecase false
+git -C %bare_repo_dir% config core.autocrlf false
  
  
 if exist %export_dir%\%clearcase_project%.marks move %export_dir%\%clearcase_project%.marks %export_dir%\%clearcase_project%.%DATE:~-4%-%DATE:~4,2%-%DATE:~7,2%.marks
-git -C git\%clearcase_project%.git fast-import --export-marks=%export_dir%\%clearcase_project%.marks < %export_dir%\%clearcase_project%_import.full > %export_dir%\%clearcase_project%_fastimport.log
+git -C %bare_repo_dir% fast-import --export-marks=%export_dir%\%clearcase_project%.marks < %export_dir%\%clearcase_project%_import.full > %export_dir%\%clearcase_project%_fastimport.log
  
  
 echo repacking repo...
-git -C git\%clearcase_project%.git repack -a -d -f --window-memory=50m
-echo > git\%clearcase_project%.git\git-daemon-export-ok
+git -C %bare_repo_dir% repack -a -d -f --window-memory=50m
+echo > %bare_repo_dir%\git-daemon-export-ok
 REM git add origin ssh:///.......
 REM git push -u origina --all
 REM git push -u origina --tags
