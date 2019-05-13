@@ -62,9 +62,9 @@ echo Creating Project file list, this may take a very long time
 pushd %pvob_root%
 echo %cd%
 @echo finding directories...
-cleartool find %clearcase_project% %search_flag=% -type d -print >%export_dir%\%clearcase_pvob%.%search_type%_dirs
+cleartool find %clearcase_project% %search_flag% -type d -print >%export_dir%\%clearcase_pvob%.%search_type%_dirs
 @echo finding files...
-cleartool find %clearcase_project% %search_flag=% -type f -print >%export_dir%\%clearcase_pvob%.%search_type%_files
+cleartool find %clearcase_project% %search_flag% -type f -print >%export_dir%\%clearcase_pvob%.%search_type%_files
 popd
 echo %cd%
  
