@@ -181,7 +181,6 @@ namespace GitImporter
                 .OrderByDescending(g => g.Count())
                 .ToDictionary(g => g.Key, g => g.Select(v => v.Name).ToList());
 
-
             string message="";// first line
             string activityMessage = null;
             string commentMessage = null;
