@@ -60,3 +60,4 @@ while(my $path = <$fh>){
         
   next if $skip;
   print $path;
+ }
