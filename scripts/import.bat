@@ -76,8 +76,8 @@ echo %cd%
 if exist %export_dir%\%clearcase_project%.import_files goto build_vodb
 echo filterin files...
  
-ccperl %batch_location%\filter.pl D %pvob_root% %clearcase_project% %export_dir%\%clearcase_pvob%.%search_type%_dirs>%export_dir%\%clearcase_project%.import_dirs
-ccperl %batch_location%\filter.pl F %pvob_root% %clearcase_project% %export_dir%\%clearcase_pvob%.%search_type%_files >%export_dir%\%clearcase_project%.import_files
+ccperl %batch_location%\filter.pl D %pvob_root% %clearcase_project% %export_dir%\%search_file_prefix%.%search_type%_dirs>%export_dir%\%clearcase_project%.import_dirs
+ccperl %batch_location%\filter.pl F %pvob_root% %clearcase_project% %export_dir%\%search_file_prefix%.%search_type%_files >%export_dir%\%clearcase_project%.import_files
    
  
 :build_vodb
