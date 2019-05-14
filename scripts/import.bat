@@ -28,8 +28,12 @@ set git_workspace=%4
 set search_type=%5
 set use_export=%6
  
+set search_file_prefix=%clearcase_pvob%
 set search_flag=-all
-if [%search_type%] == [project] set search_flag=
+if [%search_type%] == [project] ( 
+	set search_flag=
+	set search_file_prefix=%clearcase_project%
+)
 set pvob_root=%clearcase_view_root%\%clearcase_pvob%
  
 set export_dir=%git_workspace%\clearcase-to-git-export
@@ -56,14 +60,14 @@ if [%search_type%] == [project] goto find_files_to_import
 goto usage
  
 :find_files_to_import
-if exist %export_dir%\%clearcase_pvob%.%search_type%_files goto filter_files
+if exist %export_dir%\%search_file_prefix%.%search_type%_files goto filter_files
 echo Creating Project file list, this may take a very long time
 pushd %pvob_root%
 echo %cd%
 @echo finding directories...
-cleartool find %clearcase_project% %search_flag% -type d -print >%export_dir%\%clearcase_pvob%.%search_type%_dirs
+cleartool find %clearcase_project% %search_flag% -type d -print >%export_dir%\%search_file_prefix%.%search_type%_dirs
 @echo finding files...
-cleartool find %clearcase_project% %search_flag% -type f -print >%export_dir%\%clearcase_pvob%.%search_type%_files
+cleartool find %clearcase_project% %search_flag% -type f -print >%export_dir%\%search_file_prefix%.%search_type%_files
 popd
 echo %cd%
  
