@@ -15,20 +15,20 @@ if not exist %batch_location%\GitImporter.exe (
 )
 
 if [%1]==[] goto usage
-if [%2]==[] goto usage
-if [%3]==[] goto usage
-if [%4]==[] goto usage
-if [%5]==[] goto usage
-if [%6]==[] goto usage
-if [%7]==[] goto usage
-
 set clearcase_view_root=%1
+if [%2]==[] goto usage
 set clearcase_pvob=%2
+if [%3]==[] goto usage
 set clearcase_project=%3
+if [%4]==[] goto usage
 set git_workspace=%4
-set search_type=%5
-set use_export=%6
-set preserve_whitespace=%6
+REM if [%5]==[] ( SET search_type="project" ) ELSE ( SET search_type=%5 )
+
+REM if [%6]==[] ( SET use_export="false ) ELSE ( SET use_export=%6 )
+
+REM if [%7]==[] ( SET use_export="false" ) ELSE ( SET use_export=%7 )
+
+
  
 set search_file_prefix=%clearcase_pvob%
 set search_flag=-all
