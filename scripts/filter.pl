@@ -17,7 +17,7 @@ my @dir_patterns = (
 my @file_patterns = (
   # files
   qr/README\.md/,
-  qr/\.bak$/, # infidividual file patters
+  qr/\.bak[@]*$/, # infidividual file patters
   qr/[\\]ORIGINAL_SOURCE[\\]/,  # files in forbitten directories
   qr/[\\](DATABASE|database)[\\]/,
   qr/[\\]transfer[\\]/,
