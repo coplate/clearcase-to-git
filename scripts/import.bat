@@ -20,6 +20,7 @@ if [%3]==[] goto usage
 if [%4]==[] goto usage
 if [%5]==[] goto usage
 if [%6]==[] goto usage
+if [%7]==[] goto usage
 
 set clearcase_view_root=%1
 set clearcase_pvob=%2
@@ -27,6 +28,7 @@ set clearcase_project=%3
 set git_workspace=%4
 set search_type=%5
 set use_export=%6
+set preserve_whitespace=%6
  
 set search_file_prefix=%clearcase_pvob%
 set search_flag=-all
@@ -121,7 +123,9 @@ mkdir %git_storage_dir%
 rmdir /S /Q %bare_repo_dir%
 git init --bare %bare_repo_dir%
 git -C %bare_repo_dir% config core.ignorecase false
-git -C %bare_repo_dir% config core.autocrlf false
+if [%preserve_whitespace%] == [true] (
+    git -C %bare_repo_dir% config core.autocrlf false
+)
  
  
 if exist %export_dir%\%clearcase_project%.marks move %export_dir%\%clearcase_project%.marks %export_dir%\%clearcase_project%.%DATE:~-4%-%DATE:~4,2%-%DATE:~7,2%.marks
@@ -137,9 +141,10 @@ REM git push -u origina --tags
 goto :eof
  
 :usage
-@echo Usage: %0 ^<Drive:\view^> ^<vob^> ^<project^> ^<Drive:\git_parent_folder^> ^<file_search_type ^( vob ^| project ^)^> ^<use_export_flag ^( true ^| false^)^>
-@echo    ex: %0 k:\view_name vob_name project_folder_name c:\ccgit project false
+@echo Usage: %0 ^<Drive:\view^> ^<vob^> ^<project^> ^<Drive:\git_parent_folder^> ^<file_search_type ^( vob ^| project ^)^> ^<use_export_flag ^( true ^| false^)^> ^<preserve_whitespace_flag ^( true ^| false^)^>
+@echo    ex: %0 k:\view_name vob_name project_folder_name c:\ccgit project false false
 @echo  Note: When use_export_flag=true, the process will run faster, but will not process activity names
+@echo  Note: When preserve_whitespace_flag=true, the git fast-import will run with 'core.autocrlf=false' to keep windows newlines in text files.
 @echo  Note: If file_search_type=project gives you errors further down the line, you many need to do a full vob file listing in order to process files and history correctly.
 exit /B 1
 :err
