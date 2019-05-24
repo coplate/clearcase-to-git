@@ -22,11 +22,11 @@ if [%3]==[] goto usage
 set clearcase_project=%3
 if [%4]==[] goto usage
 set git_workspace=%4
-REM if [%5]==[] ( SET search_type="project" ) ELSE ( SET search_type=%5 )
+if [%5]==[] (set search_type=project) ELSE (set search_type=%5)
 
-REM if [%6]==[] ( SET use_export="false ) ELSE ( SET use_export=%6 )
+if [%6]==[] (set use_export=false) ELSE (set use_export=%6)
 
-REM if [%7]==[] ( SET use_export="false" ) ELSE ( SET use_export=%7 )
+if [%7]==[] (set preserve_whitespace=false) ELSE (set preserve_whitespace=%7)
 
 
  
